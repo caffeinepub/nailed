@@ -1,0 +1,109 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.75rem;
+
+    /* White background */
+    --background: 1 0 0;
+    /* Deep lavender text */
+    --foreground: 0.22 0.06 300;
+    /* White card */
+    --card: 1 0 0;
+    --card-foreground: 0.22 0.06 300;
+    --popover: 1 0 0;
+    --popover-foreground: 0.22 0.06 300;
+    /* Lavender accent */
+    --primary: 0.62 0.18 300;
+    --primary-foreground: 1 0 0;
+    /* Light lavender */
+    --secondary: 0.93 0.04 300;
+    --secondary-foreground: 0.22 0.06 300;
+    /* Muted lavender */
+    --muted: 0.95 0.03 300;
+    /* Medium lavender gray */
+    --muted-foreground: 0.52 0.08 300;
+    --accent: 0.93 0.04 300;
+    --accent-foreground: 0.22 0.06 300;
+    --destructive: 0.577 0.245 27.325;
+    --destructive-foreground: 0.985 0 0;
+    /* Lavender border */
+    --border: 0.87 0.06 300;
+    /* Input fill */
+    --input: 0.96 0.03 300;
+    --ring: 0.62 0.18 300;
+    --chart-1: 0.62 0.18 300;
+    --chart-2: 0.75 0.14 300;
+    --chart-3: 0.52 0.08 300;
+    --chart-4: 0.87 0.06 300;
+    --chart-5: 0.95 0.03 300;
+    --sidebar: 1 0 0;
+    --sidebar-foreground: 0.22 0.06 300;
+    --sidebar-primary: 0.62 0.18 300;
+    --sidebar-primary-foreground: 1 0 0;
+    --sidebar-accent: 0.93 0.04 300;
+    --sidebar-accent-foreground: 0.22 0.06 300;
+    --sidebar-border: 0.87 0.06 300;
+    --sidebar-ring: 0.62 0.18 300;
+
+    /* Custom brand tokens */
+    --lavender: 0.62 0.18 300;
+    --lavender-light: 0.93 0.04 300;
+    --lavender-soft: 0.96 0.03 300;
+    --lavender-dark: 0.22 0.06 300;
+    --lavender-mid: 0.52 0.08 300;
+    --lavender-border: 0.87 0.06 300;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Inter", sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: "Playfair Display", serif;
+  }
+}
+
+@layer utilities {
+  .font-serif {
+    font-family: "Playfair Display", serif;
+  }
+  .font-sans {
+    font-family: "Inter", sans-serif;
+  }
+  .text-lavender {
+    color: oklch(var(--lavender));
+  }
+  .bg-lavender {
+    background-color: oklch(var(--lavender));
+  }
+  .bg-lavender-light {
+    background-color: oklch(var(--lavender-light));
+  }
+  .bg-lavender-soft {
+    background-color: oklch(var(--lavender-soft));
+  }
+  .border-lavender {
+    border-color: oklch(var(--lavender-border));
+  }
+  .text-lavender-mid {
+    color: oklch(var(--lavender-mid));
+  }
+  .text-lavender-dark {
+    color: oklch(var(--lavender-dark));
+  }
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
+}
