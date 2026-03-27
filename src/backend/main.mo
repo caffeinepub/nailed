@@ -4,9 +4,12 @@ import Runtime "mo:core/Runtime";
 import Time "mo:core/Time";
 import Text "mo:core/Text";
 import Principal "mo:core/Principal";
+import Migration "migration";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
+// Use data migration (with-clause) to persist previous bookings and to introduce a persistent experts variable.
+(with migration = Migration.run)
 actor {
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
@@ -37,6 +40,7 @@ actor {
       serviceType : ServiceType;
       notes : Text;
       status : Status;
+      expertId : Nat;
     };
 
     public type BookingInput = {
@@ -46,6 +50,7 @@ actor {
       date : Time.Time;
       serviceType : ServiceType;
       notes : Text;
+      expertId : Nat;
     };
 
     public type BookingOutput = {
@@ -59,7 +64,16 @@ actor {
       status : Status;
       createdAt : Time.Time;
       updatedAt : Time.Time;
+      expertId : Nat;
     };
+  };
+
+  public type Expert = {
+    id : Nat;
+    name : Text;
+    experience : Nat;
+    appointmentsDone : Nat;
+    rating : Float;
   };
 
   public type UserProfile = {
@@ -69,6 +83,7 @@ actor {
   var nextBookingId = 0;
   let bookings = Map.empty<Nat, Booking.Booking>();
   let userProfiles = Map.empty<Principal, UserProfile>();
+  let experts = Map.empty<Nat, Expert>();
 
   func convertBookingToOutput(booking : Booking.Booking) : Booking.BookingOutput {
     {
@@ -82,7 +97,13 @@ actor {
       status = booking.status;
       createdAt = booking.date;
       updatedAt = booking.date;
+      expertId = booking.expertId;
     };
+  };
+
+  // Expert management
+  public query func getExperts() : async [Expert] {
+    experts.values().toArray();
   };
 
   // User profile management
@@ -120,6 +141,7 @@ actor {
       serviceType = bookingInput.serviceType;
       notes = bookingInput.notes;
       status = #pending;
+      expertId = bookingInput.expertId;
     };
 
     bookings.add(bookingId, booking);

@@ -24,6 +24,7 @@ import { ServiceType, Status } from "../backend.d";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import {
   useGetAllBookings,
+  useGetExperts,
   useIsCallerAdmin,
   useUpdateBookingStatus,
 } from "../hooks/useQueries";
@@ -71,9 +72,12 @@ export default function Admin() {
     isLoading: bookingsLoading,
     refetch,
   } = useGetAllBookings();
+  const { data: experts } = useGetExperts();
   const updateStatus = useUpdateBookingStatus();
 
   const [updatingId, setUpdatingId] = useState<bigint | null>(null);
+
+  const expertMap = new Map((experts ?? []).map((e) => [String(e.id), e.name]));
 
   const handleStatusChange = async (id: bigint, status: Status) => {
     setUpdatingId(id);
@@ -260,6 +264,9 @@ export default function Admin() {
                           Service
                         </TableHead>
                         <TableHead className="font-sans font-semibold text-[oklch(0.22_0.06_300)]">
+                          Expert
+                        </TableHead>
+                        <TableHead className="font-sans font-semibold text-[oklch(0.22_0.06_300)]">
                           Date
                         </TableHead>
                         <TableHead className="font-sans font-semibold text-[oklch(0.22_0.06_300)]">
@@ -289,6 +296,13 @@ export default function Admin() {
                           <TableCell className="font-sans text-sm text-[oklch(0.52_0.08_300)]">
                             {SERVICE_LABELS[booking.serviceType] ??
                               booking.serviceType}
+                          </TableCell>
+                          <TableCell className="font-sans text-sm text-[oklch(0.52_0.08_300)]">
+                            {expertMap.get(String(booking.expertId)) ?? (
+                              <span className="italic text-[oklch(0.72_0.05_300)]">
+                                Unknown
+                              </span>
+                            )}
                           </TableCell>
                           <TableCell className="font-sans text-sm text-[oklch(0.52_0.08_300)] whitespace-nowrap">
                             {formatDate(booking.date)}

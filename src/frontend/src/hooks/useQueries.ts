@@ -1,5 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type BookingInput, ServiceType, Status } from "../backend.d";
+import {
+  type BookingInput,
+  type Expert,
+  ServiceType,
+  Status,
+} from "../backend.d";
 import { useActor } from "./useActor";
 
 export function useSubmitBooking() {
@@ -54,4 +59,17 @@ export function useIsCallerAdmin() {
   });
 }
 
+export function useGetExperts() {
+  const { actor } = useActor();
+  return useQuery({
+    queryKey: ["experts"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getExperts();
+    },
+    enabled: !!actor,
+  });
+}
+
 export { ServiceType, Status };
+export type { Expert };

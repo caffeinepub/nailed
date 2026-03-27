@@ -13,9 +13,17 @@ export interface BookingInput {
     serviceType: ServiceType;
     date: Time;
     name: string;
+    expertId: bigint;
     address: string;
     notes: string;
     phone: string;
+}
+export interface Expert {
+    id: bigint;
+    name: string;
+    experience: bigint;
+    appointmentsDone: bigint;
+    rating: number;
 }
 export interface BookingOutput {
     id: BookingId;
@@ -24,6 +32,7 @@ export interface BookingOutput {
     date: Time;
     name: string;
     createdAt: Time;
+    expertId: bigint;
     updatedAt: Time;
     address: string;
     notes: string;
@@ -54,6 +63,7 @@ export interface backendInterface {
     getAllBookings(): Promise<Array<BookingOutput>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
+    getExperts(): Promise<Array<Expert>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;

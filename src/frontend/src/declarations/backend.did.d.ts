@@ -15,6 +15,7 @@ export interface BookingInput {
   'serviceType' : ServiceType,
   'date' : Time,
   'name' : string,
+  'expertId' : bigint,
   'address' : string,
   'notes' : string,
   'phone' : string,
@@ -26,10 +27,18 @@ export interface BookingOutput {
   'date' : Time,
   'name' : string,
   'createdAt' : Time,
+  'expertId' : bigint,
   'updatedAt' : Time,
   'address' : string,
   'notes' : string,
   'phone' : string,
+}
+export interface Expert {
+  'id' : bigint,
+  'name' : string,
+  'experience' : bigint,
+  'appointmentsDone' : bigint,
+  'rating' : number,
 }
 export type ServiceType = { 'acrylicNails' : null } |
   { 'pedicure' : null } |
@@ -50,6 +59,7 @@ export interface _SERVICE {
   'getAllBookings' : ActorMethod<[], Array<BookingOutput>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getExperts' : ActorMethod<[], Array<Expert>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,

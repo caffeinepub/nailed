@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Clock,
@@ -23,7 +24,7 @@ import { useRef, useState } from "react";
 import { SiFacebook, SiInstagram, SiPinterest } from "react-icons/si";
 import { toast } from "sonner";
 import { ServiceType } from "../backend.d";
-import { useSubmitBooking } from "../hooks/useQueries";
+import { useGetExperts, useSubmitBooking } from "../hooks/useQueries";
 
 const SERVICE_LABELS: Record<ServiceType, string> = {
   [ServiceType.gelNails]: "Gel Extensions",
@@ -145,6 +146,36 @@ const SOCIAL_LINKS = [
   { Icon: SiFacebook, label: "Facebook", href: "https://facebook.com" },
 ];
 
+function StarRating({ rating }: { rating: number }) {
+  const stars: React.ReactNode[] = [];
+  for (let i = 1; i <= 5; i++) {
+    const filled = rating >= i - 0.25;
+    const half = !filled && rating >= i - 0.75;
+    stars.push(
+      <span
+        key={i}
+        className={`text-sm ${
+          filled
+            ? "text-[oklch(0.75_0.18_75)]"
+            : half
+              ? "text-[oklch(0.75_0.18_75)]"
+              : "text-[oklch(0.85_0.03_300)]"
+        }`}
+      >
+        {filled ? "★" : half ? "★" : "☆"}
+      </span>,
+    );
+  }
+  return (
+    <span className="flex items-center gap-0.5">
+      {stars}
+      <span className="ml-1 text-xs text-[oklch(0.52_0.08_300)] font-sans">
+        {rating.toFixed(1)}
+      </span>
+    </span>
+  );
+}
+
 export default function Home() {
   const heroRef = useRef<HTMLElement>(null);
   const servicesRef = useRef<HTMLElement>(null);
@@ -153,6 +184,7 @@ export default function Home() {
   const bookingRef = useRef<HTMLElement>(null);
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [expertError, setExpertError] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -160,9 +192,11 @@ export default function Home() {
     date: "",
     serviceType: "" as ServiceType | "",
     notes: "",
+    expertId: null as bigint | null,
   });
 
   const submitBooking = useSubmitBooking();
+  const { data: experts, isLoading: expertsLoading } = useGetExperts();
 
   const scrollTo = (ref: React.RefObject<HTMLElement | null>) => {
     ref.current?.scrollIntoView({ behavior: "smooth" });
@@ -181,6 +215,12 @@ export default function Home() {
       toast.error("Please fill in all required fields.");
       return;
     }
+    if (formData.expertId === null) {
+      setExpertError(true);
+      toast.error("Please select an expert.");
+      return;
+    }
+    setExpertError(false);
     try {
       const dateMs = new Date(formData.date).getTime();
       await submitBooking.mutateAsync({
@@ -190,6 +230,7 @@ export default function Home() {
         date: BigInt(dateMs) * BigInt(1_000_000),
         serviceType: formData.serviceType as ServiceType,
         notes: formData.notes,
+        expertId: formData.expertId,
       });
       toast.success("Booking submitted! We'll confirm shortly. 💅");
       setFormData({
@@ -199,6 +240,7 @@ export default function Home() {
         date: "",
         serviceType: "",
         notes: "",
+        expertId: null,
       });
     } catch {
       toast.error("Something went wrong. Please try again.");
@@ -628,6 +670,72 @@ export default function Home() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* ===== EXPERT SELECTION ===== */}
+                <div className="space-y-2">
+                  <Label className="font-sans text-sm text-[oklch(0.52_0.08_300)]">
+                    Choose Your Expert *
+                  </Label>
+                  {expertsLoading ? (
+                    <div
+                      className="grid grid-cols-2 gap-3"
+                      data-ocid="booking.loading_state"
+                    >
+                      {[1, 2, 3, 4].map((n) => (
+                        <Skeleton key={n} className="h-28 rounded-xl" />
+                      ))}
+                    </div>
+                  ) : experts && experts.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      {experts.map((expert, i) => {
+                        const isSelected = formData.expertId === expert.id;
+                        return (
+                          <button
+                            type="button"
+                            key={String(expert.id)}
+                            onClick={() => {
+                              setFormData((p) => ({
+                                ...p,
+                                expertId: expert.id,
+                              }));
+                              setExpertError(false);
+                            }}
+                            className={`text-left rounded-xl p-3 border-2 transition-all duration-200 ${
+                              isSelected
+                                ? "border-[oklch(0.62_0.18_300)] bg-[oklch(0.95_0.04_300)] shadow-sm"
+                                : "border-[oklch(0.87_0.06_300)] bg-[oklch(0.97_0.02_300)] hover:border-[oklch(0.75_0.12_300)] hover:bg-[oklch(0.96_0.03_300)]"
+                            }`}
+                            data-ocid={`booking.radio.${i + 1}`}
+                          >
+                            <p className="font-sans font-semibold text-sm text-[oklch(0.22_0.06_300)] mb-1">
+                              {expert.name}
+                            </p>
+                            <p className="font-sans text-xs text-[oklch(0.52_0.08_300)] mb-1">
+                              {String(expert.experience)} yrs experience
+                            </p>
+                            <p className="font-sans text-xs text-[oklch(0.62_0.18_300)] mb-1.5">
+                              {String(expert.appointmentsDone)} appointments
+                            </p>
+                            <StarRating rating={expert.rating} />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="font-sans text-sm text-[oklch(0.52_0.08_300)] italic">
+                      No experts available at this time.
+                    </p>
+                  )}
+                  {expertError && (
+                    <p
+                      className="text-destructive text-xs font-sans"
+                      data-ocid="booking.error_state"
+                    >
+                      Please select an expert to continue.
+                    </p>
+                  )}
+                </div>
+
                 <div className="space-y-1.5">
                   <Label
                     htmlFor="notes"
@@ -690,13 +798,21 @@ export default function Home() {
                         {plan.price}
                       </span>
                       <span
-                        className={`font-serif text-xl ${plan.highlighted ? "text-white" : "text-[oklch(0.22_0.06_300)]"}`}
+                        className={`font-serif text-xl ${
+                          plan.highlighted
+                            ? "text-white"
+                            : "text-[oklch(0.22_0.06_300)]"
+                        }`}
                       >
                         {plan.name}
                       </span>
                     </div>
                     <p
-                      className={`font-sans text-sm mb-3 ${plan.highlighted ? "text-white/70" : "text-[oklch(0.52_0.08_300)]"}`}
+                      className={`font-sans text-sm mb-3 ${
+                        plan.highlighted
+                          ? "text-white/70"
+                          : "text-[oklch(0.52_0.08_300)]"
+                      }`}
                     >
                       {plan.description}
                     </p>

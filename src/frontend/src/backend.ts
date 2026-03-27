@@ -95,9 +95,17 @@ export interface BookingInput {
     serviceType: ServiceType;
     date: Time;
     name: string;
+    expertId: bigint;
     address: string;
     notes: string;
     phone: string;
+}
+export interface Expert {
+    id: bigint;
+    name: string;
+    experience: bigint;
+    appointmentsDone: bigint;
+    rating: number;
 }
 export interface BookingOutput {
     id: BookingId;
@@ -106,6 +114,7 @@ export interface BookingOutput {
     date: Time;
     name: string;
     createdAt: Time;
+    expertId: bigint;
     updatedAt: Time;
     address: string;
     notes: string;
@@ -137,6 +146,7 @@ export interface backendInterface {
     getAllBookings(): Promise<Array<BookingOutput>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
+    getExperts(): Promise<Array<Expert>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
@@ -214,6 +224,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getCallerUserRole();
             return from_candid_UserRole_n11(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getExperts(): Promise<Array<Expert>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getExperts();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getExperts();
+            return result;
         }
     }
     async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
@@ -309,6 +333,7 @@ function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint
     date: _Time;
     name: string;
     createdAt: _Time;
+    expertId: bigint;
     updatedAt: _Time;
     address: string;
     notes: string;
@@ -320,6 +345,7 @@ function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint
     date: Time;
     name: string;
     createdAt: Time;
+    expertId: bigint;
     updatedAt: Time;
     address: string;
     notes: string;
@@ -332,6 +358,7 @@ function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint
         date: value.date,
         name: value.name,
         createdAt: value.createdAt,
+        expertId: value.expertId,
         updatedAt: value.updatedAt,
         address: value.address,
         notes: value.notes,
@@ -388,6 +415,7 @@ function to_candid_record_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8
     serviceType: ServiceType;
     date: Time;
     name: string;
+    expertId: bigint;
     address: string;
     notes: string;
     phone: string;
@@ -395,6 +423,7 @@ function to_candid_record_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8
     serviceType: _ServiceType;
     date: _Time;
     name: string;
+    expertId: bigint;
     address: string;
     notes: string;
     phone: string;
@@ -403,6 +432,7 @@ function to_candid_record_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8
         serviceType: to_candid_ServiceType_n15(_uploadFile, _downloadFile, value.serviceType),
         date: value.date,
         name: value.name,
+        expertId: value.expertId,
         address: value.address,
         notes: value.notes,
         phone: value.phone

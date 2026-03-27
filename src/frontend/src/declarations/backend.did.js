@@ -34,16 +34,25 @@ export const BookingOutput = IDL.Record({
   'date' : Time,
   'name' : IDL.Text,
   'createdAt' : Time,
+  'expertId' : IDL.Nat,
   'updatedAt' : Time,
   'address' : IDL.Text,
   'notes' : IDL.Text,
   'phone' : IDL.Text,
 });
 export const UserProfile = IDL.Record({ 'name' : IDL.Text });
+export const Expert = IDL.Record({
+  'id' : IDL.Nat,
+  'name' : IDL.Text,
+  'experience' : IDL.Nat,
+  'appointmentsDone' : IDL.Nat,
+  'rating' : IDL.Float64,
+});
 export const BookingInput = IDL.Record({
   'serviceType' : ServiceType,
   'date' : Time,
   'name' : IDL.Text,
+  'expertId' : IDL.Nat,
   'address' : IDL.Text,
   'notes' : IDL.Text,
   'phone' : IDL.Text,
@@ -55,6 +64,7 @@ export const idlService = IDL.Service({
   'getAllBookings' : IDL.Func([], [IDL.Vec(BookingOutput)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getExperts' : IDL.Func([], [IDL.Vec(Expert)], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
@@ -95,16 +105,25 @@ export const idlFactory = ({ IDL }) => {
     'date' : Time,
     'name' : IDL.Text,
     'createdAt' : Time,
+    'expertId' : IDL.Nat,
     'updatedAt' : Time,
     'address' : IDL.Text,
     'notes' : IDL.Text,
     'phone' : IDL.Text,
   });
   const UserProfile = IDL.Record({ 'name' : IDL.Text });
+  const Expert = IDL.Record({
+    'id' : IDL.Nat,
+    'name' : IDL.Text,
+    'experience' : IDL.Nat,
+    'appointmentsDone' : IDL.Nat,
+    'rating' : IDL.Float64,
+  });
   const BookingInput = IDL.Record({
     'serviceType' : ServiceType,
     'date' : Time,
     'name' : IDL.Text,
+    'expertId' : IDL.Nat,
     'address' : IDL.Text,
     'notes' : IDL.Text,
     'phone' : IDL.Text,
@@ -116,6 +135,7 @@ export const idlFactory = ({ IDL }) => {
     'getAllBookings' : IDL.Func([], [IDL.Vec(BookingOutput)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getExperts' : IDL.Func([], [IDL.Vec(Expert)], ['query']),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
